@@ -1,0 +1,38 @@
+---
+- name: create directory
+  file:
+    path: "{{ script_path }}"
+    state: directory
+
+- name: clone repository
+  git:
+    repo: "{{ script_url }}"
+    dest: "{{ script_path }}"
+    clone: yes
+    update: yes
+
+- name: generate systemd unit
+  become: true
+  template:
+    src: radar_template.service.j2
+    dest: /etc/systemd/system/radar_{{ item }}.service
+    # owner: root
+    # group: root
+    # mode: 0755  
+  loop: "{{ sensor_name }}"
+  register: units_in_disk
+
+- name: systemd reload
+  become: true
+  systemd:
+    daemon_reload: yes
+  when: units_in_disk.changed
+
+- name: restart
+  become: true
+  service:
+    name: radar_valencia
+    state: restarted
+    enabled: yes
+  when: units_in_disk.changed
+

@@ -1,0 +1,8 @@
+- name: radar
+  hosts: home
+  become: false
+  gather_facts: no
+  roles:
+    - role: radar
+  tags:
+    - radar

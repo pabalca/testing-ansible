@@ -1,0 +1,4 @@
+---
+version: 0.0.1
+script_url: git@github.com:pabalca/radar-deploy.git
+script_path: /home/umbrel/projects/radar
