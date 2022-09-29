@@ -22,17 +22,32 @@
   loop: "{{ sensor_name }}"
   register: units_in_disk
 
-- name: systemd reload
-  become: true
-  systemd:
-    daemon_reload: yes
-  when: units_in_disk.changed
-
-- name: restart
+- name: restart if unit changed
   become: true
   service:
-    name: radar_valencia
+    name: radar_{{ item }}
     state: restarted
+    daemon_reload: yes
     enabled: yes
+  loop: "{{ sensor_name }}"
   when: units_in_disk.changed
 
+- name: stop old services
+  become: true
+  service:
+    name: radar_{{ item }}
+    state: stopped
+    enabled: no
+  # loop: "{{ delete_sensor_name | default([]) }}"
+  loop: "{{ delete_sensor_name }}"
+  when: delete_sensor_name | default('') | length > 0
+
+
+- name: delete old services
+  become: true
+  file:
+    path: /etc/systemd/system/radar_{{ item }}.service
+    state: absent
+  loop: "{{ delete_sensor_name }}"
+  when: delete_sensor_name | default('') | length > 0
+  
