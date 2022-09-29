@@ -32,6 +32,13 @@
   loop: "{{ sensor_name }}"
   when: units_in_disk.changed
 
+- name: start if failed
+  become: true
+  service:
+    name: radar_{{ item }}
+    state: started
+  loop: "{{ sensor_name }}"
+
 - name: stop old services
   become: true
   service:
