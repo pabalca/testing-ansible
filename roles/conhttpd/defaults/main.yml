@@ -3,4 +3,4 @@ version: 0.0.1
 script_name: conhttpd
 script_url: git@github.com:pabalca/conhttpd.git
 script_path: /opt/conhttpd
-script_port: 6000
+script_port: 7900
