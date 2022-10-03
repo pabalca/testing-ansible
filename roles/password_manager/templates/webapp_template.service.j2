@@ -1,0 +1,19 @@
+[Unit]
+Description=Webapp {{ item }}
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+Environment="DEBIAN_FRONTEND=noninteractive"
+Environment="FLASK_ENV=production"
+Environment="FLASK_APP=/usr/src/app/password_manager"
+Environment="FOO=foo"
+
+ExecStart=gunicorn --bind 0.0.0.0:5000 /usr/src/app/password_manager:app
+User=umbrel
+
+[Install]
+WantedBy=multi-user.target

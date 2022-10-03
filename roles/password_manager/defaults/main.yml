@@ -1,0 +1,4 @@
+---
+version: 0.0.1
+script_url: http://umbrel.local:8085/pabalca/password_manager.git
+script_path: /home/umbrel/projects/password_manager

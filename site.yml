@@ -6,3 +6,21 @@
     - role: radar
   tags:
     - radar
+
+- name: password_manager
+  hosts: home
+  become: false
+  gather_facts: no
+  roles:
+    - role: password_manager
+  tags:
+    - password_manager
+
+- name: conhttpd
+  hosts: home
+  become: true
+  gather_facts: no
+  roles:
+    - role: conhttpd
+  tags:
+    - conhttpd

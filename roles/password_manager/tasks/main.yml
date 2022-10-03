@@ -1,0 +1,64 @@
+---
+- name: create directory
+  file:
+    path: "{{ script_path }}"
+    state: directory
+
+- name: clone repository
+  git:
+    repo: "{{ script_url }}"
+    dest: "{{ script_path }}"
+    clone: yes
+    update: yes
+
+- name: install command into virtualenv
+  pip:
+    requirements: "{{ script_path }}/requirements.txt"
+    # name: command
+    virtualenv: "{{ script_path }}/venv"
+    virtualenv_python: python3
+
+- name: Check system information
+  shell:
+    "{{ script_path }}/venv/bin/flask initdb"
+
+- name: generate systemd unit
+  become: true
+  template:
+    src: webapp_template.service.j2
+    dest: /etc/systemd/system/webapp_{{ item }}.service
+    # owner: root
+    # group: root
+    # mode: 0755  
+  loop: "{{ webapp_name }}"
+  register: units_in_disk
+
+- name: restart if unit changed
+  become: true
+  service:
+    name: webapp_{{ item }}
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+  loop: "{{ webapp_name }}"
+  when: units_in_disk.changed
+
+- name: stop old services
+  become: true
+  service:
+    name: webapp_{{ item }}
+    state: stopped
+    enabled: no
+  # loop: "{{ delete_webapp_name | default([]) }}"
+  loop: "{{ delete_webapp_name }}"
+  when: delete_webapp_name | default('') | length > 0
+
+
+- name: delete old services
+  become: true
+  file:
+    path: /etc/systemd/system/webapp_{{ item }}.service
+    state: absent
+  loop: "{{ delete_webapp_name }}"
+  when: delete_webapp_name | default('') | length > 0
+  

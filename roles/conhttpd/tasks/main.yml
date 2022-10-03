@@ -1,0 +1,36 @@
+---
+- name: create directory
+  file:
+    path: "{{ script_path }}"
+    state: directory
+
+- name: clone repository
+  become: false
+  git:
+    repo: "{{ script_url }}"
+    dest: "{{ script_path }}"
+    clone: yes
+    update: yes
+
+- name: install command into virtualenv
+  pip:
+    requirements: "{{ script_path }}/requirements.txt"
+    # name: command
+    virtualenv: "{{ script_path }}/venv"
+    virtualenv_python: python3
+    # extra_args: "-e {{ script_path }}"
+
+- name: generate systemd unit
+  template:
+    src: webapp_template.service.j2
+    dest: /etc/systemd/system/{{ script_name }}.service
+  register: units_in_disk
+
+- name: restart if unit changed
+  service:
+    name: "{{ script_name }}"
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+  when: units_in_disk.changed
+

@@ -1,0 +1,18 @@
+[Unit]
+Description=Webapp {{ script_name }}
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+WorkingDirectory={{ script_path }}
+Environment="FLASK_DEBUG=1"
+Environment="FLASK_APP={{ script_path }}"
+
+ExecStart={{ script_path }}/venv/bin/gunicorn --bind 0.0.0.0:{{ script_port }} {{ script_name }}:app
+User=root
+
+[Install]
+WantedBy=multi-user.target
