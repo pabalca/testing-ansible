@@ -1,4 +1,22 @@
 ---
+- name: install dependencies
+  apt:
+    name: nginx
+    state: latest
+
+- name: configure nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/conf.d/{{ script_name }}.conf
+  register: nginx_config
+
+- name: restart if nginx changed
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  when: nginx_config.changed
+
 - name: create directory
   file:
     path: "{{ script_path }}"

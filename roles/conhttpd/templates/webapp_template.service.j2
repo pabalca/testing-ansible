@@ -10,8 +10,7 @@ RestartSec=10
 WorkingDirectory={{ script_path }}
 Environment="FLASK_DEBUG=1"
 Environment="FLASK_APP={{ script_path }}/{{ script_name }}"
-
-ExecStart={{ script_path }}/venv/bin/flask run --host=0.0.0.0 --port={{ script_port }}
+ExecStart={{ script_path }}/venv/bin/gunicorn --workers 2 --bind=unix:{{ script_name }}.sock {{ script_name }}:app
 User=root
 
 [Install]
